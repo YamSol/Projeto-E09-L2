@@ -9,7 +9,7 @@
 - ? motor
 - 
 
-## Periféricos utilizados <ESCOLHER MIN. 3)
+## Periféricos utilizados <ESCOLHER NO MINIMO 3>
 - Interrupcao
 - Timer contador
 - Timer PWM
