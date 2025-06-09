@@ -1,0 +1,9 @@
+
+# Ignorar arquivos temporários do Arduino
+*.elf
+*.hex
+*.eep
+*.d
+*.a
+*.o
+build/
