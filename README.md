@@ -3,7 +3,7 @@
 ## Descrição do Projeto
 Jogo interativo de competição entre dois jogadores onde cada um deve pressionar seu botão para preencher seus LEDs. O primeiro jogador a completar todos os 4 LEDs vence. O projeto utiliza programação em C puro para Arduino com técnicas avançadas de microcontroladores.
 
-![Circuito do Projeto](assets/imagem-circuito.png)
+![Circuito do Projeto](assets/foto-projeto.jpeg)
 
 ## Componentes Técnicos Utilizados
 
@@ -16,7 +16,13 @@ O projeto utiliza **Timer1** com interrupção por comparação (CTC - Clear Tim
 
 ### 2. PWM Digital (Software PWM)
 Implementação de PWM por software para controle de brilho dos LEDs:
-- **Função pwm_software()**: Gera sinais PWM para 8 LEDs simultaneamente
+- **Função pwm_software()
+- **Função**: Controla a sequência de bipes do buzzer (largada e fim de jogo)
+- **Configuração**: Timer1 com prescaler 64, OCR1A = 249 para período de 1ms
+- **Vantagem**: Execução precisa de timing sem bloquear o código principal
+
+### 2. PWM Digital (Software PWM)
+Implementação de PWM por software para controle de brilho dos LEDs:**: Gera sinais PWM para 8 LEDs simultaneamente
 - **Resolução**: 8 bits (0-255 níveis de brilho)
 - **Princípio**: Controla o tempo que cada LED fica ligado/desligado em cada ciclo
 - **Aplicação**: Mostra o progresso visual conforme o jogador pressiona o botão
