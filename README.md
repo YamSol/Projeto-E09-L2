@@ -1,5 +1,10 @@
 # Jogo de Competição Arduino - Pressionar Botões
 
+## Integrantes
+- Lucas Belino
+- Lucas Motta
+- Yam Sol Bertamini
+
 ## Descrição do Projeto
 Jogo interativo de competição entre dois jogadores onde cada um deve pressionar seu botão para preencher seus LEDs. O primeiro jogador a completar todos os 4 LEDs vence. O projeto utiliza programação em C puro para Arduino com técnicas avançadas de microcontroladores.
 
