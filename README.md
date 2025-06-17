@@ -1,125 +1,143 @@
-# 🎮 Jogo PvP com ATmega328P
+# Jogo de Competição Arduino - Pressionar Botões
 
-Este projeto de jogo PvP utiliza o microcontrolador ATmega328P. O objetivo é pressionar os botões rapidamente para acender LEDs, com o primeiro jogador a completar todos os LEDs ganhando. 🏆
+## Descrição do Projeto
+Jogo interativo de competição entre dois jogadores onde cada um deve pressionar seu botão para preencher seus LEDs. O primeiro jogador a completar todos os 4 LEDs vence. O projeto utiliza programação em C puro para Arduino com técnicas avançadas de microcontroladores.
 
-## Funcionalidade
+![Circuito do Projeto](assets/imagem-circuito.png)
 
-- **Jogo PvP**: Dois jogadores competem pressionando seus botões para acender LEDs. ⚔️
-- **Interrupções**: A lógica de jogo é controlada por interrupções, garantindo resposta rápida dos botões. ⚡
-- **PWM por software**: O brilho dos LEDs é controlado via PWM por software. 💡
-- **Vitória**: O primeiro jogador a acender todos os LEDs vence. 🎉
+## Componentes Técnicos Utilizados
 
-### Componentes utilizados:
-- **ATmega328P**: Microcontrolador principal. 💻
-- **8 LEDs**: Controlados via PWM. 🔴🟠🟡🟢🔵🟣🟤⚫
-- **3 Botões**: 2 para os jogadores e 1 para resetar o jogo. 🕹️
-- **Timer**: Utilizado para controle de tempo e PWM. ⏲️
+### 1. Interrupções (Interrupts)
+O projeto utiliza **Timer1** com interrupção por comparação (CTC - Clear Timer on Compare Match):
+- **ISR(TIMER1_COMPA_vect)**: Interrupção executada a cada 1ms
+- **Função**: Controla a sequência de bipes do buzzer (largada e fim de jogo)
+- **Configuração**: Timer1 com prescaler 64, OCR1A = 249 para período de 1ms
+- **Vantagem**: Execução precisa de timing sem bloquear o código principal
 
-## Estrutura do Projeto
+### 2. PWM Digital (Software PWM)
+Implementação de PWM por software para controle de brilho dos LEDs:
+- **Função pwm_software()**: Gera sinais PWM para 8 LEDs simultaneamente
+- **Resolução**: 8 bits (0-255 níveis de brilho)
+- **Princípio**: Controla o tempo que cada LED fica ligado/desligado em cada ciclo
+- **Aplicação**: Mostra o progresso visual conforme o jogador pressiona o botão
 
-- `Makefile`: Automatiza o processo de compilação e upload utilizando `arduino-cli`. ⚙️
-- `src/main/main.ino`: Código principal do jogo. 📝
+### 3. Timer Contador
+Sistema de contagem temporal baseado no Timer1:
+- **buzzer_timer**: Contador incrementado a cada 1ms pela interrupção
+- **Estados do buzzer**: Controla sequências temporais complexas (6 estados para largada)
+- **Precisão**: Timing exato para bipes de diferentes durações
+- **Reset automático**: Reinicia contadores ao completar sequências
 
-## Como Compilar e Fazer Upload
+## Lista de Componentes Físicos
 
-1. Clone o repositório:
-   \```bash
-   git clone <URL_do_repositório>
-   cd PvpLedGame
-   \```
+### LEDs
+- **8 LEDs de 5mm**
+  - 4 LEDs verdes (jogador 1)
+  - 4 LEDs amarelos (jogador 2)
+- **Especificações**: 3V forward voltage, 20mA corrente típica
 
-2. Compile e faça o upload utilizando o `Makefile`:
-   - Para compilar:
-     \```bash
-     make build
-     \```
-   - Para fazer o upload para o ATmega328P:
-     \```bash
-     make upload
-     \```
+### Resistores
+- **8 resistores de 220Ω** (para LEDs)
+  - Cálculo: (5V - 3V) / 0.02A = 100Ω mínimo
+  - 220Ω garante margem de segurança e brilho adequado
 
-## Como Funciona
+### Botões
+- **3 push buttons** (normalmente aberto)
+  - 2 botões para jogadores
+  - 1 botão de reset/start
 
-1. O jogo começa no estado "desligado". Quando o botão de reset é pressionado, o jogo entra no estado "em jogo". 🔌
-2. Cada jogador deve pressionar seu botão para acender LEDs. O objetivo é acender todos os LEDs antes do adversário. ⚡
-3. Quando um jogador completa todos os seus LEDs, o jogo entra no estado "vitória", piscando os LEDs do vencedor. 🎉
-4. O botão de reset reinicia o jogo, apagando todos os LEDs e zerando as pontuações. 🔄
+### Buzzer
+- **1 buzzer piezoelétrico ativo 5V**
+  - Não necessita resistor limitador
+  - Controle digital on/off
 
-## 📡 Esquemático do Projeto
+### Protoboard e Jumpers
+- **1 protoboard** 830 pontos
+- **Jumpers macho-macho** coloridos para organização
 
-O projeto é composto por um microcontrolador ATmega328P, 8 LEDs, 3 botões e resistores para pull-up nos botões. A seguir, explico a configuração dos componentes:
+## Montagem do Circuito
 
-### Componentes:
+### Conexões dos LEDs
+**Jogador 1 (LEDs Verdes)**:
+- LED 1: Arduino pino D0 → resistor 220Ω → LED → GND
+- LED 2: Arduino pino D1 → resistor 220Ω → LED → GND  
+- LED 3: Arduino pino D2 → resistor 220Ω → LED → GND
+- LED 4: Arduino pino D3 → resistor 220Ω → LED → GND
 
-1. **ATmega328P**: O microcontrolador principal que controla os LEDs, lê os botões e executa a lógica do jogo.
-   
-2. **LEDs (PORTD 0-7)**: Os LEDs estão conectados aos pinos PD0 a PD7 do ATmega328P. Eles são controlados por PWM por software para ajustar a intensidade do brilho de acordo com a pontuação dos jogadores. 🔴🟠🟡🟢🔵🟣🟤⚫
+**Jogador 2 (LEDs Amarelos)**:
+- LED 5: Arduino pino D4 → resistor 220Ω → LED → GND
+- LED 6: Arduino pino D5 → resistor 220Ω → LED → GND
+- LED 7: Arduino pino D6 → resistor 220Ω → LED → GND
+- LED 8: Arduino pino D7 → resistor 220Ω → LED → GND
 
-3. **Botões (PC0, PC1, PC2)**:
-   - **PC0**: Botão do Jogador 1, conectado ao pino PC0 do ATmega328P.
-   - **PC1**: Botão do Jogador 2, conectado ao pino PC1 do ATmega328P.
-   - **PC2**: Botão de reset, conectado ao pino PC2.
-   
-   Todos os botões estão configurados com resistores pull-up internos para garantir um nível lógico alto quando não pressionados e baixo quando pressionados.
+### Conexões dos Botões
+- **Botão Jogador 1**: Arduino pino B0 → botão → GND (pull-up interno ativado)
+- **Botão Jogador 2**: Arduino pino B1 → botão → GND (pull-up interno ativado)
+- **Botão Reset**: Arduino pino B2 → botão → GND (pull-up interno ativado)
 
-4. **Resistores Pull-Up**: Para cada botão, um resistor pull-up interno é ativado via software, mantendo o nível lógico alto (1) até que o botão seja pressionado, forçando o pino a um nível baixo (0).
+### Conexão do Buzzer
+- **Buzzer**: Arduino pino B3 → buzzer positivo
+- **GND**: buzzer negativo → GND Arduino
 
-5. **Fonte de Alimentação**: O circuito é alimentado com uma tensão de 5V, que é fornecida ao ATmega328P e aos LEDs.
+## Funcionamento do Jogo
 
-### Conexões:
-- **LEDs**: 
-   - Conectados nos pinos PD0 a PD7 do ATmega328P. Cada pino de LED pode ser controlado independentemente com uma variação de intensidade de brilho (PWM por software).
-   
-- **Botões**: 
-   - Botão de Jogador 1 conectado ao pino PC0.
-   - Botão de Jogador 2 conectado ao pino PC1.
-   - Botão de Reset conectado ao pino PC2.
+### Estados do Jogo
+1. **Parado (estado 0)**: Aguarda pressionar botão de reset
+2. **Jogando (estado 1)**: Jogadores pressionam botões para preencher LEDs
+3. **Fim (estado 2)**: Um jogador completou todos os LEDs
 
-### Funcionalidade:
+### Mecânica de Jogo
+- Cada jogador deve pressionar seu botão **10 vezes** para acender completamente um LED
+- A cada pressionada, o LED aumenta o brilho (PWM incremental)
+- Após 10 pressionadas, o LED fica totalmente aceso e passa para o próximo
+- O primeiro a completar os 4 LEDs vence
 
-- Quando o botão de um jogador é pressionado, a interrupção do microcontrolador é acionada e a pontuação desse jogador é incrementada.
-- Quando a pontuação de um jogador atingir 10, um LED é aceso. Os LEDs são acesos em ordem, com o jogador 1 acendendo os LEDs de 0 a 3 e o jogador 2 acendendo de 7 a 4.
-- O botão de reset reinicia o jogo, apagando todos os LEDs e zerando a pontuação dos jogadores.
+### Sequência de Início
+O botão de reset/start inicia uma sequência de 3 bipes:
+1. Bipe 1: 150ms ligado
+2. Pausa: 100ms
+3. Bipe 2: 150ms ligado  
+4. Pausa: 100ms
+5. Bipe 3: 500ms ligado
+6. Jogo inicia automaticamente
 
-### Diagrama Esquemático
+## Características Técnicas
 
-O esquemático do projeto pode ser desenhado utilizando ferramentas como Fritzing ou Eagle. Para fins de entendimento, o esquemático pode ser ilustrado da seguinte maneira:
+### Performance
+- **Frequência de PWM**: Aproximadamente 1kHz (sem flickering visível)
+- **Resolução de brilho**: 256 níveis por LED
+- **Tempo de resposta**: < 1ms para detecção de botão
+- **Precisão temporal**: 1ms para sequências de áudio
 
-\```plaintext
-                    +------------------+
-                    |                  |
-    5V -------------| VCC              |
-                    |                  |
-                    |  ATmega328P      |
-    GND ------------| GND              |
-                    |                  |
-    PC0  ---------->| Button 1 (Player 1)|
-                    |                  |
-    PC1  ---------->| Button 2 (Player 2)|
-                    |                  |
-    PC2  ---------->| Reset Button      |
-                    |                  |
-                    |                  |
-  PD0 - PD7  ------>| LEDs (Player 1 and Player 2)|
-                    |                  |
-                    +------------------+
-\```
+### Consumo
+- **LEDs**: Máximo 160mA (8 LEDs × 20mA)
+- **Arduino**: ~50mA
+- **Buzzer**: ~30mA
+- **Total**: ~240mA (dentro dos limites do Arduino)
 
-**Nota**: Esse diagrama é uma representação conceitual das conexões. Para criar um esquemático real, utilize uma ferramenta de design de circuitos eletrônicos como **Fritzing** ou **Eagle** para conectar os componentes e gerar o diagrama.
+## Compilação e Upload
 
----
+### Configurações do Arduino IDE
+- **Placa**: Arduino Uno
+- **Porta**: Verificar porta serial correta
+- **Programador**: AVRISP mkII (ou padrão)
 
-## Dependências
+### Bibliotecas Necessárias
+O código utiliza apenas bibliotecas padrão do AVR:
+```c
+#include <avr/io.h>        // Operações de I/O de baixo nível
+#include <avr/interrupt.h> // Sistema de interrupções
+```
 
-- `arduino-cli`: Certifique-se de ter o `arduino-cli` instalado em sua máquina para compilar e fazer o upload do código. 🛠️
+### Processo de Upload
+1. Conectar Arduino via USB
+2. Verificar seleção da porta no Arduino IDE
+3. Compilar e fazer upload do código
+4. Testar funcionamento dos componentes
 
-## Contribuições
-
-Contribuições são bem-vindas! Para qualquer sugestão ou melhoria, sinta-se à vontade para abrir um issue ou enviar um pull request. 💬
-
----
-
-**Equipe de Desenvolvimento**: 👨‍💻
-- **Lucas Belino**
-- **Lucas Motta**
-- **Yam Sol Bertamini**
+## Expansões Possíveis
+- Adicionar display LCD para mostrar score
+- Implementar níveis de dificuldade
+- Adicionar efeitos sonoros diferentes
+- Criar modo torneio com múltiplas rodadas
+- Implementar comunicação serial para debug

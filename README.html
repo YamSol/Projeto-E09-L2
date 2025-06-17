@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>README.html</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
+</head>
+
+<body>
+
+<h1>Jogo de Competição Arduino - Pressionar Botões</h1>
+
+<h2>Descrição do Projeto</h2>
+
+<p>Jogo interativo de competição entre dois jogadores onde cada um deve pressionar seu botão para preencher seus LEDs. O primeiro jogador a completar todos os 4 LEDs vence. O projeto utiliza programação em C puro para Arduino com técnicas avançadas de microcontroladores.</p>
+
+<p><img src="assets/imagem-circuito.png" alt="Circuito do Projeto" title="" /></p>
+
+<h2>Componentes Técnicos Utilizados</h2>
+
+<h3>1. Interrupções (Interrupts)</h3>
+
+<p>O projeto utiliza <strong>Timer1</strong> com interrupção por comparação (CTC - Clear Timer on Compare Match):
+- <strong>ISR(TIMER1<em>COMPA</em>vect)</strong>: Interrupção executada a cada 1ms
+- <strong>Função</strong>: Controla a sequência de bipes do buzzer (largada e fim de jogo)
+- <strong>Configuração</strong>: Timer1 com prescaler 64, OCR1A = 249 para período de 1ms
+- <strong>Vantagem</strong>: Execução precisa de timing sem bloquear o código principal</p>
+
+<h3>2. PWM Digital (Software PWM)</h3>
+
+<p>Implementação de PWM por software para controle de brilho dos LEDs:
+- <strong>Função pwm_software()</strong>: Gera sinais PWM para 8 LEDs simultaneamente
+- <strong>Resolução</strong>: 8 bits (0-255 níveis de brilho)
+- <strong>Princípio</strong>: Controla o tempo que cada LED fica ligado/desligado em cada ciclo
+- <strong>Aplicação</strong>: Mostra o progresso visual conforme o jogador pressiona o botão</p>
+
+<h3>3. Timer Contador</h3>
+
+<p>Sistema de contagem temporal baseado no Timer1:
+- <strong>buzzer_timer</strong>: Contador incrementado a cada 1ms pela interrupção
+- <strong>Estados do buzzer</strong>: Controla sequências temporais complexas (6 estados para largada)
+- <strong>Precisão</strong>: Timing exato para bipes de diferentes durações
+- <strong>Reset automático</strong>: Reinicia contadores ao completar sequências</p>
+
+<h2>Lista de Componentes Físicos</h2>
+
+<h3>LEDs</h3>
+
+<ul>
+<li><strong>8 LEDs de 5mm</strong>
+<ul>
+<li>4 LEDs verdes (jogador 1)</li>
+<li>4 LEDs amarelos (jogador 2)</li>
+</ul></li>
+<li><strong>Especificações</strong>: 3V forward voltage, 20mA corrente típica</li>
+</ul>
+
+<h3>Resistores</h3>
+
+<ul>
+<li><strong>8 resistores de 220Ω</strong> (para LEDs)
+<ul>
+<li>Cálculo: (5V - 3V) / 0.02A = 100Ω mínimo</li>
+<li>220Ω garante margem de segurança e brilho adequado</li>
+</ul></li>
+</ul>
+
+<h3>Botões</h3>
+
+<ul>
+<li><strong>3 push buttons</strong> (normalmente aberto)
+<ul>
+<li>2 botões para jogadores</li>
+<li>1 botão de reset/start</li>
+</ul></li>
+</ul>
+
+<h3>Buzzer</h3>
+
+<ul>
+<li><strong>1 buzzer piezoelétrico ativo 5V</strong>
+<ul>
+<li>Não necessita resistor limitador</li>
+<li>Controle digital on/off</li>
+</ul></li>
+</ul>
+
+<h3>Protoboard e Jumpers</h3>
+
+<ul>
+<li><strong>1 protoboard</strong> 830 pontos</li>
+<li><strong>Jumpers macho-macho</strong> coloridos para organização</li>
+</ul>
+
+<h2>Montagem do Circuito</h2>
+
+<h3>Conexões dos LEDs</h3>
+
+<p><strong>Jogador 1 (LEDs Verdes)</strong>:
+- LED 1: Arduino pino D0 → resistor 220Ω → LED → GND
+- LED 2: Arduino pino D1 → resistor 220Ω → LED → GND <br />
+- LED 3: Arduino pino D2 → resistor 220Ω → LED → GND
+- LED 4: Arduino pino D3 → resistor 220Ω → LED → GND</p>
+
+<p><strong>Jogador 2 (LEDs Amarelos)</strong>:
+- LED 5: Arduino pino D4 → resistor 220Ω → LED → GND
+- LED 6: Arduino pino D5 → resistor 220Ω → LED → GND
+- LED 7: Arduino pino D6 → resistor 220Ω → LED → GND
+- LED 8: Arduino pino D7 → resistor 220Ω → LED → GND</p>
+
+<h3>Conexões dos Botões</h3>
+
+<ul>
+<li><strong>Botão Jogador 1</strong>: Arduino pino B0 → botão → GND (pull-up interno ativado)</li>
+<li><strong>Botão Jogador 2</strong>: Arduino pino B1 → botão → GND (pull-up interno ativado)</li>
+<li><strong>Botão Reset</strong>: Arduino pino B2 → botão → GND (pull-up interno ativado)</li>
+</ul>
+
+<h3>Conexão do Buzzer</h3>
+
+<ul>
+<li><strong>Buzzer</strong>: Arduino pino B3 → buzzer positivo</li>
+<li><strong>GND</strong>: buzzer negativo → GND Arduino</li>
+</ul>
+
+<h2>Funcionamento do Jogo</h2>
+
+<h3>Estados do Jogo</h3>
+
+<ol>
+<li><strong>Parado (estado 0)</strong>: Aguarda pressionar botão de reset</li>
+<li><strong>Jogando (estado 1)</strong>: Jogadores pressionam botões para preencher LEDs</li>
+<li><strong>Fim (estado 2)</strong>: Um jogador completou todos os LEDs</li>
+</ol>
+
+<h3>Mecânica de Jogo</h3>
+
+<ul>
+<li>Cada jogador deve pressionar seu botão <strong>10 vezes</strong> para acender completamente um LED</li>
+<li>A cada pressionada, o LED aumenta o brilho (PWM incremental)</li>
+<li>Após 10 pressionadas, o LED fica totalmente aceso e passa para o próximo</li>
+<li>O primeiro a completar os 4 LEDs vence</li>
+</ul>
+
+<h3>Sequência de Início</h3>
+
+<p>O botão de reset/start inicia uma sequência de 3 bipes:
+1. Bipe 1: 150ms ligado
+2. Pausa: 100ms
+3. Bipe 2: 150ms ligado <br />
+4. Pausa: 100ms
+5. Bipe 3: 500ms ligado
+6. Jogo inicia automaticamente</p>
+
+<h2>Características Técnicas</h2>
+
+<h3>Performance</h3>
+
+<ul>
+<li><strong>Frequência de PWM</strong>: Aproximadamente 1kHz (sem flickering visível)</li>
+<li><strong>Resolução de brilho</strong>: 256 níveis por LED</li>
+<li><strong>Tempo de resposta</strong>: &lt; 1ms para detecção de botão</li>
+<li><strong>Precisão temporal</strong>: 1ms para sequências de áudio</li>
+</ul>
+
+<h3>Consumo</h3>
+
+<ul>
+<li><strong>LEDs</strong>: Máximo 160mA (8 LEDs × 20mA)</li>
+<li><strong>Arduino</strong>: ~50mA</li>
+<li><strong>Buzzer</strong>: ~30mA</li>
+<li><strong>Total</strong>: ~240mA (dentro dos limites do Arduino)</li>
+</ul>
+
+<h2>Compilação e Upload</h2>
+
+<h3>Configurações do Arduino IDE</h3>
+
+<ul>
+<li><strong>Placa</strong>: Arduino Uno</li>
+<li><strong>Porta</strong>: Verificar porta serial correta</li>
+<li><strong>Programador</strong>: AVRISP mkII (ou padrão)</li>
+</ul>
+
+<h3>Bibliotecas Necessárias</h3>
+
+<p>O código utiliza apenas bibliotecas padrão do AVR:
+```c</p>
+
+<h1>include <avr/io.h>        // Operações de I/O de baixo nível</h1>
+
+<h1>include <avr/interrupt.h> // Sistema de interrupções</h1>
+
+<p>```</p>
+
+<h3>Processo de Upload</h3>
+
+<ol>
+<li>Conectar Arduino via USB</li>
+<li>Verificar seleção da porta no Arduino IDE</li>
+<li>Compilar e fazer upload do código</li>
+<li>Testar funcionamento dos componentes</li>
+</ol>
+
+<h2>Expansões Possíveis</h2>
+
+<ul>
+<li>Adicionar display LCD para mostrar score</li>
+<li>Implementar níveis de dificuldade</li>
+<li>Adicionar efeitos sonoros diferentes</li>
+<li>Criar modo torneio com múltiplas rodadas</li>
+<li>Implementar comunicação serial para debug</li>
+</ul>
+
+</body>
+</html>
