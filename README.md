@@ -21,12 +21,6 @@ Implementação de PWM por software para controle de brilho dos LEDs:
 - **Configuração**: Timer1 com prescaler 64, OCR1A = 249 para período de 1ms
 - **Vantagem**: Execução precisa de timing sem bloquear o código principal
 
-### 2. PWM Digital (Software PWM)
-Implementação de PWM por software para controle de brilho dos LEDs:**: Gera sinais PWM para 8 LEDs simultaneamente
-- **Resolução**: 8 bits (0-255 níveis de brilho)
-- **Princípio**: Controla o tempo que cada LED fica ligado/desligado em cada ciclo
-- **Aplicação**: Mostra o progresso visual conforme o jogador pressiona o botão
-
 ### 3. Timer Contador
 Sistema de contagem temporal baseado no Timer1:
 - **buzzer_timer**: Contador incrementado a cada 1ms pela interrupção
